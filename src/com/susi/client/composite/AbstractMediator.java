@@ -1,11 +1,9 @@
 package com.susi.client.composite;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -14,72 +12,65 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.susi.client.GwtJsplumb;
+import com.susi.client.injector.JsClientBundle;
 
-public class AbstractMediator extends Composite implements ClickHandler {
-
-  private TextBox textBox = new TextBox();
-  private TextBox textBox2 = new TextBox();
-  private Image myImage = new Image();
-  HorizontalPanel panel = null;
-  //private PopupPanel contextMenu = null;
-
-  /**
-   * Constructs an OptionalTextBox with the given caption on the check.
-   * 
-   * @param caption the caption to be displayed with the check box
-   */
-  public AbstractMediator(String caption) {
-    // Place the check above the text box using a vertical panel.
-    panel = new HorizontalPanel();
-    panel.add(myImage);
-    //panel.add(textBox);
-   // panel.add(textBox2);
-    
-
-    // Set the check box's caption, and check it by default.
-//    checkBox.setText(caption);
-//    checkBox.setChecked(true);
-//    checkBox.addClickHandler(this);
-
-//    this.contextMenu = new PopupPanel(true);
-//    this.contextMenu.add(new HTML("My Context menu!"));
-//    this.contextMenu.hide();
-    // All composites must call initWidget() in their constructors.
-    initWidget(panel);
-
-    // Give the overall composite a style name.
-    setStyleName("example-OptionalCheckBox");
-    
- 
-  }
+public class AbstractMediator extends Composite implements ContextMenuHandler {
 
 
-  
-  public void setImage(ImageResource resource) {
-	    myImage.setResource(resource);
-	  }
-  
-  
-  public void AddTextBox() {
-	  panel.add(new TextBox());
-	  System.out.println("add Textbox");
-	  jsAlert("add Textbox");
-  }
-  
-  public static native void jsAlert(String message) /*-{
-      $wnd.alert("jsAlert " + message);
-  }-*/;
-  
-
-@Override
-public void onClick(ClickEvent event) {
-	Object sender = event.getSource();
-    if (sender == myImage) {
-      // When the check box is clicked, update the text box's enabled state.
-      //textBox.setEnabled(checkBox.isChecked());
-    }
- 
-}
+	VerticalPanel mainPannel = null;
+	HorizontalPanel innerPanel = null;
+	TextBox descriptionText = null;
+	Image iconImage = null;
+	TextBox innerText = null;
+	PopupPanel contextMenu = null;
 
 
+	public AbstractMediator(String caption) {
+		 
+		mainPannel = new VerticalPanel();
+		innerPanel = new HorizontalPanel();
+		descriptionText = new TextBox();
+		innerText = new TextBox();
+	    iconImage = new Image();
+	    ImageResource StoreImageResource = JsClientBundle.INSTANCE.StoreImage();
+	    iconImage.setResource(StoreImageResource);
+	    
+		mainPannel.add(innerPanel);
+		mainPannel.add(descriptionText);
+		innerPanel.add(iconImage);
+		innerPanel.add(innerText);
+		mainPannel.sinkEvents(Event.ONCONTEXTMENU);
+		
+
+		this.contextMenu = new PopupPanel(true);
+		this.contextMenu.add(new HTML("My Context menu!"));
+		this.contextMenu.hide();
+		
+		// All composites must call initWidget() in their constructors.
+		initWidget(mainPannel);
+
+		// Give the overall composite a style name.
+		setStyleName("example-OptionalCheckBox");
+
+		addDomHandler(this, ContextMenuEvent.getType());
+
+	}
+
+	@Override
+	public void onContextMenu(ContextMenuEvent event) {
+		// stop the browser from opening the context menu
+		event.preventDefault();
+		event.stopPropagation();
+
+		this.contextMenu.setPopupPosition(event.getNativeEvent().getClientX(),
+				event.getNativeEvent().getClientY());
+		this.contextMenu.show();
+		AddMediator(); //testMethod just to check weather we can add things dynamically
+	}
+	
+	public void AddMediator() {
+		innerPanel.add(new AbstractMediator("ssssusinda"));
+		GwtJsplumb.jsAlert("add AbstractMediator");
+	}
+	
 }
